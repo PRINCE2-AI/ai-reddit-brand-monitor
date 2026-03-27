@@ -259,7 +259,12 @@ def get_urgency(text):
             model=DEFAULT_OLLAMA_MODEL,
             prompt=full_prompt
         )
-        return response["response"].strip()
+        raw = response["response"].strip()
+        # Normalize to exact label regardless of extra text
+        for label in ["High Urgency", "Low Urgency"]:
+            if label.lower() in raw.lower():
+                return label
+        return raw  # fallback: return as-is if no known label found
     except Exception as e:
         st.error(f"Ollama error (Urgency): {e}")
         return None
@@ -391,7 +396,7 @@ def generate_report_summary(df):
         )
         return response["response"].strip()
     except Exception as e:
-        st.error(f"Ollama error (Negative Summary): {e}")
+        st.error(f"Ollama error (Suggestion Summary): {e}")
         return "Error generating summary."
 
 
